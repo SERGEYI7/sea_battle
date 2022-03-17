@@ -3,6 +3,7 @@ class SeaBattle
     def initialize(x, y)
         @x = x
         @y = y
+        @win = false
         @alphabet = nil
         @matrix = nil
         @wrecked_ships = []
@@ -20,11 +21,11 @@ class SeaBattle
     end
 
     def view_all_ships
-        clone_matrix = Marshal.load(Marshal.dump(@matrix)) 
-        p @list_ships
+        clone_matrix = Marshal.load(Marshal.dump(@matrix))
+        puts "What a shame…"
         for x_oxis, y_oxis in @list_ships.flatten(1)
             new_string = clone_matrix[y_oxis-1][0].split('')
-            new_string[x_oxis-1] = 'H' if new_string[x_oxis-1] == '.'
+            new_string[x_oxis-1] = 'S' if new_string[x_oxis-1] == '.'
             new_string = new_string.join('')
             clone_matrix[y_oxis-1][0] = new_string
         end
@@ -44,7 +45,8 @@ class SeaBattle
         p "@list_ships.flatten(1) = #{@list_ships.flatten(1)}"
         p "@wrecked_ships = #{@wrecked_ships}"
         if @list_ships.flatten(1).sort == @wrecked_ships.sort
-            p "Победаааа!!!!!"
+            puts "You win!"
+            @win = true
         end
     end
 
@@ -53,8 +55,6 @@ class SeaBattle
         rand_count_ships = rand(3..6)
         count_loop = 0
         parameters = [1,1,1,1,2,2,2,3,3,4]
-        param_test = [1, 1]
-        parameters = param_test
         while @list_ships.length < parameters.length
             count_loop -= 1
             rand_xy = rand(0..1)
@@ -83,20 +83,17 @@ class SeaBattle
                 count += 1
             end
             begin
-            for i_last_ships in @list_ships[-1]
-                for i_contact in contact_zone(i_last_ships)
-                    if @list_ships[0..-2].flatten(1).include?(i_contact)
-                        count_loop -= 1
-                        @list_ships.delete_at(-1)
-                        break 
+                for i_last_ships in @list_ships[-1]
+                    for i_contact in contact_zone(i_last_ships)
+                        if @list_ships[0..-2].flatten(1).include?(i_contact)
+                            count_loop -= 1
+                            @list_ships.delete_at(-1)
+                            break 
+                        end
                     end
                 end
-            end
             
             rescue
-            end
-            if @alphabet[rand_x] == nil
-                p rand_x
             end
         end
     end
@@ -110,12 +107,11 @@ class SeaBattle
             if num.to_i.between?(1, @y)
                 num = num.to_i - 1
             else
-                raise 'Ошибка цифры нахуй, Поздравляю!!'
+                raise "Ошибка координаты >#{num}<"
             end
             if not @alphabet.include?(let.upcase)
-                raise 'Ошибка буквы нахуй, Поздравляю!!'
+                raise "Ошибка координаты >#{num}<"
             end
-            p "ты тут блять????"
             fire(let, num)
             draw
         end
@@ -127,12 +123,13 @@ class SeaBattle
         #p @matrix
         draw
         while true
-            p @clone_list_ships.map {|i| i.map {|j| [@alphabet[j[0]-1], j[1]]}}
-            p @list_ships
             begin
                 command
             rescue => err
                 p err
+            end
+            if @win
+                break
             end
         end
     end
