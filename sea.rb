@@ -24,10 +24,10 @@ class SeaBattle
         clone_matrix = Marshal.load(Marshal.dump(@matrix))
         puts "What a shame…"
         for x_oxis, y_oxis in @list_ships.flatten(1)
-            new_string = clone_matrix[y_oxis-1][0].split('')
+            new_string = clone_matrix[y_oxis][0].split('')
             new_string[x_oxis-1] = 'S' if new_string[x_oxis-1] == '.'
             new_string = new_string.join('')
-            clone_matrix[y_oxis-1][0] = new_string
+            clone_matrix[y_oxis][0] = new_string
         end
         draw(clone_matrix)
     end
@@ -35,15 +35,13 @@ class SeaBattle
     def fire(let, num)
         
         for i in @list_ships.flatten(1)
-            if i == [@x_field[let.upcase]+1, num+1]
-                @matrix[num][0][@x_field[let.upcase]] = 'x'
+            if i == [@x_field[let.upcase]+1, num]
+                @matrix[num][0][@x_field[let.upcase]] = 'X'
                 @wrecked_ships.append(i)
                 break
             end
-            @matrix[num][0][@x_field[let.upcase]] = 'o'
+            @matrix[num][0][@x_field[let.upcase]] = 'O'
         end
-        p "@list_ships.flatten(1) = #{@list_ships.flatten(1)}"
-        p "@wrecked_ships = #{@wrecked_ships}"
         if @list_ships.flatten(1).sort == @wrecked_ships.sort
             puts "You win!"
             @win = true
@@ -61,7 +59,7 @@ class SeaBattle
             rand_length = parameters[@list_ships.length-1]
             rand_plus_minus = [1, -1].sample
             rand_x = rand((0..@x))
-            rand_y = rand((0..@y))
+            rand_y = rand((0...@y))
             @list_ships.append([])
             count = 0
             for j in rand_length.times
@@ -73,7 +71,7 @@ class SeaBattle
                 end
                 list_ships_include_coordinate = @list_ships.flatten(1).include?(coordinate)
                 x_in_range = coordinate[0].between?(1, @x)
-                y_in_range = coordinate[1].between?(0, @y)
+                y_in_range = coordinate[1].between?(0, @y-1)
                 if list_ships_include_coordinate or not x_in_range or not y_in_range
                     count_loop -= 1
                     @list_ships.delete_at(-1)
@@ -101,7 +99,7 @@ class SeaBattle
     def command
         inp = STDIN.gets.chomp
         let, num = inp.scan(/[a-z]/).join(''), inp.scan(/[0-9]/).join('')
-        if inp.upcase == "S"
+        if inp == "surrender"
             view_all_ships
         else
             if num.to_i.between?(1, @y)
@@ -119,8 +117,6 @@ class SeaBattle
 
     def start
         @clone_list_ships = Marshal.load(Marshal.dump(@list_ships))
-        #p @list_ships.length
-        #p @matrix
         draw
         while true
             begin
