@@ -97,18 +97,18 @@ class SeaBattle
     end
 
     def command
+        puts "\nEnter the coordinates of the ship:"
         inp = STDIN.gets.chomp
         let, num = inp.scan(/[a-z]/).join(''), inp.scan(/[0-9]/).join('')
         if inp == "surrender"
             view_all_ships
         else
-            if num.to_i.between?(1, @y)
-                num = num.to_i - 1
+            if not num.to_i.between?(1, @y)
+                raise "Ошибка координаты >#{num}<"
+            elsif not @alphabet.include?(let.upcase)
+                raise "Ошибка координаты >#{let}<"
             else
-                raise "Ошибка координаты >#{num}<"
-            end
-            if not @alphabet.include?(let.upcase)
-                raise "Ошибка координаты >#{num}<"
+                num = num.to_i - 1
             end
             fire(let, num)
             draw
@@ -145,14 +145,6 @@ class SeaBattle
     def contact_zone(xy)
         x, y = xy
         contact = [[x-1, y], [x+1, y], [x, y-1], [x, y+1], [x-1, y+1], [x-1, y-1], [x+1, y+1], [x+1, y-1]]
-        for i in contact
-            if @list_ships.include?(i)
-                result = false
-                break
-            end
-        end
-        result = true
-        contact
     end
 
 end
