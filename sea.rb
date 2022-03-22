@@ -7,7 +7,6 @@ class SeaBattle
   attr_accessor :win, :list_ships, :wrecked_ships, :free_cell
 
   def initialize()
-    @win = false
     @matrix = nil
     @list_ships = []
     @wrecked_ships = []
@@ -53,17 +52,21 @@ class SeaBattle
     triple_ships: {length_ship: 3, number_ships: 2}, quarter_ships: {length_ship: 4, number_ships: 1}}
     number_ships = assigned_ships.each_value.map {|value| value[:number_ships]}.sum
     length_ships = assigned_ships.each_value.map {|value| [value[:length_ship]] * value[:number_ships]}.flatten
-    while @list_ships.length < number_ships
+    # while @list_ships.length < number_ships
+    number_ships.times.each do
       random_direction = rand(0..1)
       rand_length = length_ships[@list_ships.length-1]
       free_zone = free_direction_zone(rand_length)
+      if free_zone[random_direction].empty?
+        random_direction = random_direction == 0 ? 1 : 0
+      end
       # p "free_direction_zone <==> #{free_zone} <==>"
-      
       rand_x, rand_y = free_zone[random_direction].sample
       if [rand_x, rand_y] == [nil, nil]
-        # p 
+        p "Нет больше клеток в этом направлениии!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
         next 
       end
+
       @list_ships.append([])
       rand_length.times.each do
         if @list_ships[-1].empty?
@@ -116,7 +119,6 @@ class SeaBattle
 
       if @list_ships.flatten(1).sort == @wrecked_ships.sort
         puts "You win!"
-        @win = true
         break
       end
 
@@ -140,6 +142,7 @@ class SeaBattle
     COLUMNS.length.times.each do|num1|
         ROWS.length.times.each {|num2| @free_cell.append([num1, num2])}
     end
+
   end
 
   def contact_zone(xy)
@@ -202,36 +205,38 @@ end
 def tests(cls)
   a = []
   alphabet = ('a'..'z').to_a[0..9]
-  for arr, i_view_all_ships in cls.view_all_ships.each_with_index
-      arr_m = arr
-      if arr_m.include?('S')
-          for value, i_in_field in arr_m.each_with_index
-              if value == "S"
-                  a.append([alphabet[i_in_field], i_view_all_ships+1])
-              end
-
-          end
+  cls.view_all_ships.each_with_index.each do |arr, i_view_all_ships|
+    arr_m = arr
+    if arr_m.include?('S')
+      arr_m.each_with_index.each do |value, i_in_field|
+        if value == "S"
+          a.append([alphabet[i_in_field], i_view_all_ships+1])
+        end
 
       end
+
+    end
 
   end
 
   a
 end
 
-count = 500
+count = 10000
 count.times.each_with_index do |index|
   test_sea = SeaBattle.new
   a = tests(test_sea)
   # p "list_ships <==> #{test_sea.list_ships} <==>"
   # p "free_cell <==> #{test_sea.free_cell} <==>"
-  test_sea.draw(test_sea.view_all_ships)
+  # test_sea.draw(test_sea.view_all_ships)
   a.each {|let, num| test_sea.fire(let, num-1)}
   if !(test_sea.list_ships.flatten(1)-test_sea.wrecked_ships).empty?
     p "Ошибка"
     break
   end
+
   if index == count-1
     puts "Ошибок Нет!!!)))"
   end
+
 end
