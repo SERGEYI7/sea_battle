@@ -53,14 +53,15 @@ class SeaBattle
     number_ships = assigned_ships.each_value.map {|value| value[:number_ships]}.sum
     length_ships = assigned_ships.each_value.map {|value| [value[:length_ship]] * value[:number_ships]}.flatten
     # while @list_ships.length < number_ships
-    number_ships.times.each do
+    # number_ships.times.each do
+    length_ships.each do |length|
       random_direction = rand(0..1)
-      rand_length = length_ships[@list_ships.length-1]
+      rand_length = length #length_ships[@list_ships.length-1]
       free_zone = free_direction_zone(rand_length)
       if free_zone[random_direction].empty?
         random_direction = random_direction == 0 ? 1 : 0
       end
-      # p "free_direction_zone <==> #{free_zone} <==>"
+      
       rand_x, rand_y = free_zone[random_direction].sample
       if [rand_x, rand_y] == [nil, nil]
         p "Нет больше клеток в этом направлениии!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
