@@ -7,7 +7,7 @@ class SeaBattle
   attr_accessor :win, :list_ships, :wrecked_ships, :free_cell
 
   def initialize()
-    @matrix = nil
+    @matrix = []
     @list_ships = []
     @wrecked_ships = []
     @free_cell = []
@@ -18,7 +18,6 @@ class SeaBattle
 
   def building_field
     @x_field = COLUMNS.map.each_with_index {|letter, index| [letter, index]}.to_h
-    @matrix = []
     ROWS.length.times.each {@matrix.append(['.'] * COLUMNS.length)} 
   end
 
@@ -50,14 +49,11 @@ class SeaBattle
   def generate_random_ships
     assigned_ships = {single_ships: {length_ship: 1, number_ships: 4}, double_ships: {length_ship: 2, number_ships: 3},
     triple_ships: {length_ship: 3, number_ships: 2}, quarter_ships: {length_ship: 4, number_ships: 1}}
-    number_ships = assigned_ships.each_value.map {|value| value[:number_ships]}.sum
+    # number_ships = assigned_ships.each_value.map {|value| value[:number_ships]}.sum
     length_ships = assigned_ships.each_value.map {|value| [value[:length_ship]] * value[:number_ships]}.flatten
-    # while @list_ships.length < number_ships
-    # number_ships.times.each do
-    length_ships.each do |length|
+    length_ships.reverse.each do |length|
       random_direction = rand(0..1)
-      rand_length = length #length_ships[@list_ships.length-1]
-      free_zone = free_direction_zone(rand_length)
+      free_zone = free_direction_zone(length)
       if free_zone[random_direction].empty?
         random_direction = random_direction == 0 ? 1 : 0
       end
@@ -69,7 +65,7 @@ class SeaBattle
       end
 
       @list_ships.append([])
-      rand_length.times.each do
+      length.times.each do
         if @list_ships[-1].empty?
           coordinate = [rand_x, rand_y]
         else
@@ -153,7 +149,6 @@ class SeaBattle
 
 
   def delete_not_free_cell(xy)
-    # array_contact_zone =  contact_zone(xy)
     contact_zone(xy).each do |arr|
       @free_cell.delete_at(@free_cell.index(arr)) if @free_cell.index(arr) != nil
     end
@@ -200,8 +195,8 @@ class SeaBattle
 
 end
   
-# sea = SeaBattle.new
-# sea.start
+sea = SeaBattle.new
+sea.start
 
 def tests(cls)
   a = []
@@ -223,7 +218,7 @@ def tests(cls)
   a
 end
 
-count = 10000
+count = 100
 count.times.each_with_index do |index|
   test_sea = SeaBattle.new
   a = tests(test_sea)
