@@ -108,11 +108,14 @@ class SeaBattle
       row = input[/[0-9].*/] 
       scan_fail = !row.to_i.between?(1, COLUMNS.length) ||
                   !COLUMNS.include?(column) || column.length != 1
+
       if scan_fail
         puts 'Ошибка координаты!'
       else
         row = row.to_i - 1
+
         fire(column, row)
+
         draw
       end
     end
@@ -152,15 +155,6 @@ class SeaBattle
         when STATUSES[:busy]
           array_row << 'S '
         end
-        # if cell[:status] == STATUSES[:empty]
-        #   array_row << '. '
-        # elsif cell[:status] == STATUSES[:destroyed]
-        #   array_row << 'X '
-        # elsif cell[:status] == STATUSES[:missed]
-        #   array_row << 'O '
-        # elsif cell[:status] == STATUSES[:busy]
-        #   array_row << 'S '
-        # end
       end
 
       array_row << "\n"
@@ -172,7 +166,9 @@ class SeaBattle
   private
 
   def generate_free_cell
+
     ROWS.each do |row|
+
       (0...COLUMNS.length).to_a.each do |column|
         @free_cell << { row: row, column: column }
       end
@@ -190,11 +186,10 @@ class SeaBattle
     end
     
     result
-    # [{column: column, row: row}, {column: column-1, row: row}, {column: column+1, row: row}, {column: column, row: row-1}, {column: column, row: row+1},
-    # {column: column-1, row: row+1}, {column: column-1, row: row-1}, {column: column+1, row: row+1}, {column: column+1, row: row-1}]
   end
 
   def delete_not_free_cell(column, row)
+
     contact_zone(column, row).each do |cell|
       @free_cell.delete(cell)
     end
@@ -202,13 +197,17 @@ class SeaBattle
 
   def free_direction_zone(length)
     directions = {}
+
     %i[column row].each do |direction|
       directions[direction] = []
+
       @free_cell.each do |cell|
         row = cell[:row]
         column = cell[:column]
         next_cells = []
+
         length.times do
+
           if next_cells.empty?
             next_cells << cell
           else
@@ -218,41 +217,24 @@ class SeaBattle
           end
           column_in_range = next_cells.last[:column].between?(0, COLUMNS.length - 1)
           row_in_range = next_cells.last[:row].between?(0, ROWS.length - 1)
+
           contact = contact_zone(next_cells.last[:column], next_cells.last[:row]).any? do |cell|
             @list_ships.include?(cell)
           end
+
           if !column_in_range || !row_in_range || contact
             cell = nil
+
             break
           end
         end
         directions[direction] << cell unless cell.nil?
       end
     end
+
     directions
   end
 end
 
 sea = SeaBattle.new
 sea.start
-
-def tests(cls)
-  a = []
-  alphabet = ('a'..'z').to_a[0..9]
-  cls.view_all_ships.each_with_index.each do |hsh, _index_view_all_ships|
-    a.append([alphabet[hsh.fetch(:column)], hsh.fetch(:row) + 1]) if hsh.fetch(:status) == :busy
-  end
-  a
-end
-
-count = 10_000
-count.times.each do |index|
-  test_sea = SeaBattle.new
-  a = tests(test_sea)
-  a.each { |column, row| test_sea.fire(column, row - 1) }
-  unless test_sea.list_ships.empty?
-    p 'Ошибка'
-    break
-  end
-  puts 'Ошибок Нет!!!)))' if index == count - 1
-end
